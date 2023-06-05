@@ -1,0 +1,37 @@
+@model List<GetQuoteDto>
+
+<a class="m-3 btn btn-primary" href="/quote/create" role="button">New Quote</a>
+
+<hr class="hr hr-blurry"/>   
+<h1 class="text-center">The list of quote</h1>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Author</th>
+      <th scope="col">Quote Text</th>
+      <th scope="col">CategoryId</th>
+      <th scope="col">FileName</th>
+      <th scope="col">Edit</th>
+      <th scope="col">Delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var quote in Model)
+{
+    <tr>
+      <th>@quote.Id</th>
+      <td>@quote.Author</td>
+      <td>@quote.QuoteText</td>
+      <td>@quote.CategoryId</td>
+      <td><a href="http://localhost:5258/images/@quote.FileName"><img style="border:1px solid; border-radius:20%;width:70px;heaght:70px;" src="~/images/@quote.FileName" alt="no file"></a></td>
+      <td><a href="/quote/Update/@quote.Id"><ion-icon name="create" style="" style="width:70px;heaght:70px;"></ion-icon></a></td>
+      <td><a href="/quote/DeleteQuote/@quote.Id"><ion-icon name="trash-outline" style="width: 50px; heaght: 50px;"></ion-icon></a></td>
+    </tr>
+}
+    
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  </tbody>
+</table>

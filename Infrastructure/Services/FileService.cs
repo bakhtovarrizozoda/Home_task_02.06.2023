@@ -10,12 +10,12 @@ public class FileService : IFileService
         _environment = environment;
     }
     
-    public string CreateFile(string folder, IFormFile file)
+    public async Task<string> CreateFileAsync(string folder, IFormFile file)
     {
         var path = Path.Combine(_environment.WebRootPath, folder, file.FileName);
         using (var stream = new FileStream(path, FileMode.Create))
         {
-            file.CopyTo(stream);
+           await file.CopyToAsync(stream);
         }
         return file.FileName;
     }
@@ -30,8 +30,8 @@ public class FileService : IFileService
             return true;
         }else{
             return false;
-        }
-
-    }
+        }        
+    
+    }   
 
 }

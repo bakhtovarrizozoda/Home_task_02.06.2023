@@ -18,20 +18,20 @@ public class FileUploadController
     }
     
     [HttpGet("GetList")]
-    public List<GetQuoteDto> GetQuotes()
+    public async Task<List<GetQuoteDto>> GetQuotesAsync()
     {
-        return _quoteService.GetQuotes();
+        return await _quoteService.GetQuotesAsync();
     }
 
     [HttpPost("Add")]
-    public GetQuoteDto AddQuote([FromForm] AddQuoteDto quote)
+    public async Task<GetQuoteDto> AddQuoteAsync([FromForm] AddQuoteDto quote)
     {
-        return _quoteService.AddQuote(quote);
+        return await _quoteService.AddQuoteAsync(quote);
     }
 
     [HttpPut("Update")]
-    public GetQuoteDto UpdateQuote([FromForm] AddQuoteDto quote)
+    public async Task<GetQuoteDto> UpdateQuoteAsync([FromForm] AddQuoteDto quote)
     {
-        return _quoteService.UpdateQuote(quote);
+        return await _quoteService.UpdateQuoteAsync(quote);
     }
 }

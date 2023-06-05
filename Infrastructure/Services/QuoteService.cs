@@ -15,23 +15,33 @@ public class QuoteService
         _fileService = fileService;
     }
 
-    public List<GetQuoteDto> GetQuotes()
+    public async Task<List<GetQuoteDto>> GetQuotesAsync()
     {
         using (var conn = _context.CreateConnection())
         {
-            var sql = $"select id as Id, author as Author,quote_text  as QuoteText,category_id as CategoryId, file_name as FileName from quotes";
-            var result = conn.Query<GetQuoteDto>(sql).ToList();
+            var sql = $"select id as Id, author as Author,quote_text  as QuoteText,category_id as CategoryId, file_name as FileName from quotes order by id";
+            var result = await conn.QueryAsync<GetQuoteDto>(sql);
             return result.ToList();
         }
     }
 
-    public GetQuoteDto AddQuote(AddQuoteDto quote)
+    public async Task<GetQuoteDto> GetQuotesByIdAsync(int id)
     {
         using (var conn = _context.CreateConnection())
         {
-            var filename = _fileService.CreateFile("images", quote.File);
+            var sql = $"select id as Id, author as Author,quote_text  as QuoteText,category_id as CategoryId, file_name as FileName from quotes where id = @id";
+            var result = await conn.QuerySingleOrDefaultAsync<GetQuoteDto>(sql, new {id});
+            return result;
+        }
+    }
+
+    public async Task<GetQuoteDto> AddQuoteAsync(AddQuoteDto quote)
+    {
+        using (var conn = _context.CreateConnection())
+        {
+            var filename = await _fileService.CreateFileAsync("images", quote.File);
             var sql = $"insert into quotes (author, quote_text, category_id, file_name) VALUES (@Author, @QuoteText, @CategoryId, @filename) returning id;";
-            var result = conn.ExecuteScalar<int>(sql, new
+            var result = await conn.ExecuteScalarAsync<int>(sql, new
             {
                 quote.Author,
                 quote.QuoteText,
@@ -49,12 +59,12 @@ public class QuoteService
         }
     }
 
-    public GetQuoteDto UpdateQuote(AddQuoteDto quote)
+    public async Task<GetQuoteDto> UpdateQuoteAsync(AddQuoteDto quote)
     {
         using (var conn = _context.CreateConnection())
         {
-            var existing = conn.QuerySingleOrDefault<GetQuoteDto>("select id , author ,quote_text ,category_id ,file_name  from quotes where id=@id;",
-                    new { quote.Id });
+            var sql1 = $"select id , author ,quote_text ,category_id ,file_name  from quotes where id=@id;";
+            var existing =  conn.QuerySingleOrDefault<GetQuoteDto>(sql1, new { quote.Id });
             if (existing == null)
             {
                 return new GetQuoteDto();
@@ -65,11 +75,11 @@ public class QuoteService
             if (quote.File != null && existing.FileName != null)
             {
                 _fileService.DeleteFile("images", existing.FileName);
-                filename = _fileService.CreateFile("images", quote.File);
+                filename = await _fileService.CreateFileAsync("images", quote.File);
             }
             else if (quote.File != null && existing.FileName == null)
             {
-                filename = _fileService.CreateFile("images", quote.File);
+                filename = await _fileService.CreateFileAsync("images", quote.File);
             }
             var sql = $"update quotes set author=@Author, quote_text=@QuoteText,category_id=@CategoryId  where id=@Id";
             if (quote.File != null)
@@ -95,4 +105,13 @@ public class QuoteService
             };
         }
     }
+
+    public void DeleteQuote(int id)
+    {
+        using (var conn = _context.CreateConnection())
+        {
+            var sql = $"delete from Quotes WHERE id = {id}";
+            var result = conn.Execute(sql); 
+        }
+    } 
 }
